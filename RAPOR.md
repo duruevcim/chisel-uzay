@@ -37,7 +37,7 @@ Basit bir benzetmeyle açıklamak gerekirse: konuşma sesini (veri) radyo dalgas
 
 ### 3.2 BPSK (Binary Phase Shift Keying)
 
-BPSK, en temel faz anahtarlamalı modülasyon yöntemidir. Veri bitleri, taşıyıcı dalganın **faz açısı** değiştirilerek iletilir. Dalganın frekansı veya genliği sabit kalır; yalnızca fazı iki olası konumdan birinde tutulur:
+BPSK, en temel faz anahtarlamalı modülasyon yöntemidir. Veri bitleri, taşıyıcı dalganın faz açısı değiştirilerek iletilir. Dalganın frekansı veya genliği sabit kalır; yalnızca fazı iki olası konumdan birinde tutulur:
 
 | Giriş Biti | Faz Kayması | Matematiksel Karşılık |
 |------------|-------------|----------------------|
@@ -46,7 +46,7 @@ BPSK, en temel faz anahtarlamalı modülasyon yöntemidir. Veri bitleri, taşıy
 
 Bit=0 geldiğinde taşıyıcı olduğu gibi iletilir. Bit=1 geldiğinde dalga 180° döndürülür; matematiksel olarak bu, dalganın işaretinin tersine çevrilmesiyle eşdeğerdir.
 
-**BPSK'nın uydu sistemlerinde tercih edilme nedenleri:**
+BPSK'nın uydu sistemlerinde tercih edilme nedenleri:
 - Gürültüye karşı yüksek dayanıklılık (en düşük Bit Hata Oranı — BER)
 - Alıcı devresinin basit olması
 - Uzay ortamındaki radyasyon ve termal gürültü koşullarında güvenilir çalışma
@@ -64,7 +64,7 @@ Gelen dalga × Referans dalga → Sonuç negatifse → Bit=1
 - Faz = 0° → +1 → Bit=0
 - Faz = 180° → −1 → Bit=1
 
-Bu sayede uydu, gelen dalgada "bu pozitif mi, negatif mi?" sorusunu sorarak orijinal 0 ve 1'leri geri kazanır. 256-noktalı LUT yalnızca **gönderme tarafında** sinyal kalitesi için gereklidir; alıcı taraf yalnızca faza bakar.
+Bu sayede uydu, gelen dalgada "bu pozitif mi, negatif mi?" sorusunu sorarak orijinal 0 ve 1'leri geri kazanır. 256-noktalı LUT yalnızca gönderme tarafında sinyal kalitesi için gereklidir; alıcı taraf yalnızca faza bakar.
 
 ### 3.4 Tam Haberleşme Zinciri
 
@@ -90,7 +90,7 @@ Modülatör üç temel bileşenden oluşur: Sinüs Arama Tablosu (LUT), Sayısal
 
 ### 4.1 Sinüs Arama Tablosu (LUT — Lookup Table)
 
-FPGA üzerinde trigonometrik fonksiyonlar gerçek zamanlı olarak hesaplanamaz; `sin()` hesaplamak yüzlerce saat çevrimi gerektirir. Bu sorunu çözmek için bir tam sinüs dalgası **önceden hesaplanarak** ROM (Salt Okunur Bellek) olarak depolanır. Her clock döngüsünde hesaplama yapmak yerine, doğrudan tabloya bakılır.
+FPGA üzerinde trigonometrik fonksiyonlar gerçek zamanlı olarak hesaplanamaz; `sin()` hesaplamak yüzlerce saat çevrimi gerektirir. Bu sorunu çözmek için bir tam sinüs dalgası önceden hesaplanarak ROM olarak depolanır. Her clock döngüsünde hesaplama yapmak yerine, doğrudan tabloya bakılır.
 
 **256 Nokta Ne Demektir?**
 
