@@ -3,7 +3,7 @@
 **Proje:** Uzay Haberleşmesi için BPSK Modülatör  
 **Dil:** Chisel HDL (Scala tabanlı)  
 **Hedef Platform:** FPGA  
-**Bağlam:** Uydu haberleşme sistemi — TÜBİTAK Star Tracker Projesi
+**Bağlam:** Uydu haberleşme sistemi — TÜBİTAK Chisel GPS Projesi
 
 ---
 
@@ -230,7 +230,3 @@ sbt "runMain uzay.BPSKModulator"
 ## 8. Sonuç
 
 Bu çalışmada Chisel HDL kullanılarak uydu haberleşmesi için temel bir BPSK modülatör ve FIR filtre donanım bloğu tasarlanmıştır. Tasarımların tümü simülasyon testlerinden geçirilmiş ve Verilog RTL üretimine hazır hale getirilmiştir.
-
----
-
-*TÜBİTAK Star Tracker Projesi kapsamında geliştirilmiştir.*
