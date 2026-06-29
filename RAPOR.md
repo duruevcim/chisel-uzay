@@ -285,7 +285,57 @@ Kullanılan `[1, 2, 2, 1]` katsayıları, merkez örneklere daha fazla ağırlı
 
 ---
 
-## 6. Verilog Çıktısı Üretimi
+## 6. Simülasyon ve GTKWave ile Görselleştirme
+
+### 6.1 Gereksinimler
+
+Testleri çalıştırmak ve sinyal dalgalarını görselleştirmek için GTKWave gereklidir.
+
+**GTKWave Kurulumu (Windows — Chocolatey ile):**
+```
+choco install gtkwave -y
+```
+Not: Chocolatey kurulumu yönetici yetkisi gerektirir. PowerShell veya cmd'yi "Yönetici olarak çalıştır" ile açın.
+
+### 6.2 Testleri Çalıştırma
+
+```
+cd C:\Users\durue\chisel-uzay
+sbt test
+```
+
+İlk çalıştırmada bağımlılıklar indirilir, 2-3 dakika sürer. Başarılı çıktı:
+```
+[info] Tests: succeeded 2, failed 0
+[info] All tests passed.
+```
+
+### 6.3 VCD Dosyasını GTKWave'de Açma
+
+Test tamamlandığında `test_run_dir/` klasöründe bir `.vcd` dosyası oluşur. Yol uzun olduğu için önce kopyalanır:
+
+```
+copy "C:\Users\durue\chisel-uzay\test_run_dir\BPSKModulator_should_bit0_icin_pozitif_bit1_icin_negatif_cikis_uretmeli\BPSKModulator.vcd" C:\Users\durue\bpsk.vcd
+```
+
+GTKWave ile aç:
+```
+gtkwave C:\Users\durue\bpsk.vcd
+```
+
+### 6.4 Sinüs Dalgasını Görme
+
+1. Sol panelde `BPSKModulator` → `io` → `cikis` üzerine **çift tıkla**
+2. Alt panelde sinyale **sağ tıkla** → Data Format → **Signed Decimal**
+3. Tekrar sağ tıkla → Data Format → Analog → **Interpolated**
+4. Tüm dalgayı ekrana sığdır: **Ctrl + Alt + F**
+
+**Test neden 512 clock tiki çalıştırıyor?**
+`fazAdim=1` ile bir tam sinüs turu 256 clock tiki sürer. 512 tik = 2 tam tur demektir. Görselleştirmede dalgayı daha belirgin görmek için 256 yerine 512 tercih edildi; bu modülatörün temel davranışını değiştirmez.
+
+---
+
+## 7. Verilog Çıktısı Üretimi
 
 Aşağıdaki komut ile FPGA sentezine hazır Verilog dosyası üretilir:
 
