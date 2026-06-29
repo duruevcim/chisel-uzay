@@ -90,24 +90,30 @@ Modülatör üç temel bileşenden oluşur: Sinüs Arama Tablosu (LUT), Sayısal
 
 ### 4.1 Sinüs Arama Tablosu (LUT — Lookup Table)
 
-FPGA üzerinde trigonometrik fonksiyonlar gerçek zamanlı olarak hesaplanamaz; sin() hesaplamak yüzlerce saat çevrimi gerektirir. Bu sorunu çözmek için bir tam sinüs dalgası **önceden hesaplanarak** ROM (Salt Okunur Bellek) olarak depolanır. Her clock döngüsünde hesaplama yapmak yerine, doğrudan tabloya bakılır.
+FPGA üzerinde trigonometrik fonksiyonlar gerçek zamanlı olarak hesaplanamaz; `sin()` hesaplamak yüzlerce saat çevrimi gerektirir. Bu sorunu çözmek için bir tam sinüs dalgası **önceden hesaplanarak** ROM (Salt Okunur Bellek) olarak depolanır. Her clock döngüsünde hesaplama yapmak yerine, doğrudan tabloya bakılır.
+
+**256 Nokta Ne Demektir?**
+
+Bir sinüs dalgası sürekli ve pürüzsüz bir eğridir; FPGA'da bunu üretmek için dalga örneklere bölünür. 256 nokta seçmek, sinüs dalgasının bir tam turunu (0°'den 360°'ye) **256 eşit parçaya bölmek** demektir.
+
+Her parça için o açıdaki sinüs değeri hesaplanır ve bir tabloya yazılır. Çalışma zamanında bu tablo ROM gibi davranır: "64. indekste ne var?" diye sorulunca, 90° açısına karşılık gelen +32767 değeri anında döner. Trigonometri hesabı yoktur, yalnızca tablo okuma vardır.
+
+**Neden tam olarak 256 nokta?**
+
+Dijital devreler ikinin kuvvetlerini (2, 4, 8, 16, 32, ...) tercih eder; çünkü ikinin kuvvetleri bit dizileriyle doğal olarak örtüşür:
+
+| Tablo Boyutu | Adres İçin Gereken Bit | Sonuç |
+|-------------|----------------------|-------|
+| 128 (2⁷) | 7 bit | Daha az bellek, ancak dalga kaba ve pürüzlü |
+| **256 (2⁸)** | **8 bit** | **Standart seçim — optimal denge** |
+| 512 (2⁹) | 9 bit | Daha pürüzsüz dalga, 2 kat fazla FPGA belleği |
+
+256 seçiminin en kritik avantajı, **mod işlemi gerektirmemesidir.** Eğer tablo 250 elemanlı olsaydı, faz sayacının 250'yi aşmaması için her clock döngüsünde `% 250` işlemi yapılması gerekirdi; bu hem donanım kaynağı harcar hem de gecikme ekler. 256 ile 8-bit sayaç doğal olarak 0'dan 255'e sayar, 255'ten sonra otomatik olarak 0'a döner. Bu **ücretsiz taşma** (free overflow) özelliği, ekstra donanım maliyeti sıfır olan bir döngü oluşturur.
 
 **Parametreler:**
 - Tablo boyutu: 256 nokta (bir tam sinüs turu)
 - Çözünürlük: 16 bit (−32767 ile +32767 arasında tam sayı değerleri)
 - Adres genişliği: 8 bit
-
-**Neden tam olarak 256 nokta?**
-
-Dijital devreler ikinin kuvvetlerini sever; adres bitleriyle doğrudan örtüşür:
-
-| Tablo Boyutu | Adres Genişliği | Sonuç |
-|-------------|----------------|-------|
-| 128 (2⁷) | 7 bit | Daha az bellek, ancak dalga kaba ve pürüzlü |
-| **256 (2⁸)** | **8 bit** | **Standart seçim — optimal denge** |
-| 512 (2⁹) | 9 bit | Daha pürüzsüz dalga, 2 kat fazla FPGA belleği |
-
-256 seçiminin en kritik avantajı, **mod işlemi gerektirmemesidir.** Eğer tablo 250 elemanlı olsaydı, faz sayacının 250'yi aşmaması için her clock döngüsünde `% 250` işlemi yapılması gerekirdi. Bu hem kaynak harcar hem de yavaşlatır. 256 ile 8-bit sayaç doğal olarak 0'dan 255'e sayar, 255'ten sonra otomatik olarak 0'a döner. Bu **ücretsiz taşma** (free overflow) özelliği, sayaç ile tablo boyutunu donanım maliyeti sıfır olan bir döngüye dönüştürür.
 
 Örnek tablo değerleri:
 
@@ -121,7 +127,21 @@ Dijital devreler ikinin kuvvetlerini sever; adres bitleriyle doğrudan örtüş�
 
 ### 4.2 NCO (Numerically Controlled Oscillator — Sayısal Kontrollü Osilatör)
 
-NCO, taşıyıcı frekansını dijital olarak üretmekten sorumlu bileşendir. Özünde bir **8-bit faz akümülatörü** (sayaç) ve bu sayacın LUT'a olan bağlantısından ibarettir.
+NCO, taşıyıcı frekansını dijital olarak üretmekten sorumlu bileşendir.
+
+**Akümülatör Nedir?**
+
+Akümülatör, her clock döngüsünde **kendi üzerine sabit bir değer ekleyen** bir kayıt (register) devresidir. Bir araba kilometre sayacına benzetilebilir: her kilometre geçtiğinde sayaç bir artar ve hiçbir zaman sıfırlanmaz, taşarak döner. Burada fark şudur: her clock darbesi geçtiğinde sayaç `fazAdim` kadar artar; bu adım ne kadar büyükse, tablo o kadar hızlı dolaşılır.
+
+**Neden 8 Bit?**
+
+LUT'un 256 girişi vardır. Bu 256 girişi adreslemek için kaç bite ihtiyaç vardır sorusunun cevabı doğrudan 8 bittir; çünkü 2⁸ = 256. Adres sayacı 8 bit olduğu için 0'dan 255'e kadar sayar ve 255'ten sonra kendiliğinden 0'a döner — tablo boyutuyla mükemmel örtüşür, ek mantık gerekmez.
+
+```
+val fazAkumulatoru = RegInit(0.U(8.W))   // 8-bit: 0–255 arası, kendiliğinden döner
+```
+
+Her clock döngüsünde `fazAdim` değeri eklenir:
 
 Her clock döngüsünde faz akümülatörüne sabit bir `fazAdim` değeri eklenir:
 
