@@ -335,12 +335,40 @@ gtkwave C:\Users\durue\bpsk.vcd
 
 ---
 
-## 7. Verilog Çıktısı Üretimi
+## 7. SystemVerilog Çıktısı Üretimi
 
-Aşağıdaki komut ile FPGA sentezine hazır Verilog dosyası üretilir:
+### 7.1 Üretme Komutu
 
-```bash
+```
 sbt "runMain uzay.BPSKModulator"
 ```
 
-Çıktı `generated/` klasöründe oluşur. Bu Verilog dosyası herhangi bir FPGA sentez aracına (Vivado, Quartus vb.) doğrudan aktarılabilir.
+Çıktı `generated/BPSKModulator.sv` dosyasında oluşur. Uzantı `.sv` — SystemVerilog demektir; Verilog'un modern ve daha güçlü versiyonudur. Vivado, Quartus gibi tüm FPGA sentez araçları `.sv` dosyalarını doğrudan kabul eder.
+
+### 7.2 Üretilen Dosyanın Anatomisi
+
+Chisel kodu derleme sırasında CIRCT/firtool aracı tarafından SystemVerilog'a dönüştürülür. Üretilen `BPSKModulator.sv` dosyasında tasarımın üç ana bileşeni şu şekilde karşılık bulur:
+
+**Sinüs LUT → Sabit wire dizisi (ROM):**
+```systemverilog
+wire [255:0][15:0] _GEN = '{16'hFCDC, 16'hF9B9, ... 16'h7FFF, ...};
+```
+Chisel'de `VecInit(Seq.tabulate(...))` ile tanımlanan 256×16-bit tablo, donanımda sabit değerler içeren bir ROM bloğuna dönüştü. FPGA sentezleyici bu sabit diziyi BRAM veya LUT belleğine yerleştirir.
+
+**NCO Akümülatörü → Register + always bloğu:**
+```systemverilog
+reg [7:0] fazAkumulatoru;
+always @(posedge clock) begin
+  if (reset)
+    fazAkumulatoru <= 8'h0;
+  else
+    fazAkumulatoru <= fazAkumulatoru + io_fazAdim;
+end
+```
+Her yükselen clock kenarında (`posedge clock`) akümülatör `fazAdim` kadar ilerler. Reset gelirse 0'a döner.
+
+**BPSK Haritalayıcı → Kombinasyonel assign:**
+```systemverilog
+assign io_cikis = io_veri & io_gecerli ? 16'h0 - _GEN_0 : _GEN_0;
+```
+Chisel'deki `Mux(io.veri && io.gecerli, -tasiyici, tasiyici)` ifadesi tek bir kombinasyonel satıra dönüştü. `16'h0 - _GEN_0` işareti tersine çevirmenin (negation) SystemVerilog karşılığıdır.
