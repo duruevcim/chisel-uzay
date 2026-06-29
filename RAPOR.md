@@ -225,8 +225,3 @@ sbt "runMain uzay.BPSKModulator"
 
 Çıktı `generated/` klasöründe oluşur.
 
----
-
-## 8. Sonuç
-
-Bu çalışmada Chisel HDL kullanılarak uydu haberleşmesi için temel bir BPSK modülatör ve FIR filtre donanım bloğu tasarlanmıştır. Tasarımların tümü simülasyon testlerinden geçirilmiş ve Verilog RTL üretimine hazır hale getirilmiştir.
