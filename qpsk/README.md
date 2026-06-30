@@ -1,15 +1,15 @@
-# QPSK Modülatör — Python Implementasyonu
+QPSK Modülatör — Python Implementasyonu
 
 GPS haberleşme sistemi için QPSK modülatörünün Python ile yazılımsal tasarımı.
 
-## Dosyalar
+Dosyalar
 
 | Dosya | Açıklama |
 |-------|---------|
-| `qpsk_modulator.py` | Ana modülatör — sembol haritalama, FIR filtre, NCO, modülasyon, görselleştirme |
-| `test_semboller.py` | Bit akışı ve sembol çıktısını terminalde kontrol etmek için küçük test |
+| `qpsk_modulator.py` | Ana modülatör — sembol haritalama, FIR filtre, NCO, modülasyon, görselleştirme içerir. |
+| `test_semboller.py` | Bit akışı ve sembol çıktısını terminalde kontrol etmek için küçük test için kullanılmıştır. |
 
-## Çalıştırma
+Çalıştırma
 
 ```bash
 conda activate gnuradio
@@ -17,7 +17,7 @@ cd qpsk
 python qpsk_modulator.py
 ```
 
-## Modülatör Adımları
+Modülatör Adımları
 
 ```
 1. Bit akışı          → rastgele 0/1 dizisi (gerçekte FEC'ten gelecek)
@@ -28,23 +28,22 @@ python qpsk_modulator.py
 6. Modülasyon         → s(t) = I·cos(2πft) + Q·sin(2πft)
 ```
 
-## Parametreler
+Parametreler
 
-| Parametre | Değer | Açıklama |
-|-----------|-------|---------|
-| `fs` | 1 MHz | Örnekleme frekansı |
-| `fc` | 100 kHz | Taşıyıcı frekansı |
-| `sps` | 10 | Sembol başına örnek |
-| FIR katsayılar | [1,2,5,8,8,5,2,1] | Toplam=32=2⁵, normalize için >>5 |
+| Parametre | Değer   | Açıklama            |
+| `fs`      | 1 MHz   | Örnekleme frekansı  |
+| `fc`      | 100 kHz | Taşıyıcı frekansı   |
+| `sps`     | 10      | Sembol başına örnek |
+| FIR katsayılar      | [1,2,5,8,8,5,2,1]   | Toplam=32=2⁵, normalize için >>5 |
 
-## Çıktı Grafikleri
+Çıktı Grafikleri
 
-- **Constellation** — 4 QPSK sembol noktası
-- **I / Q Kanalı** — filtresiz (kare) vs filtreli (yumuşak) karşılaştırması
-- **Modüle Edilmiş Sinyal** — filtresiz vs filtreli
-- **Frekans Spektrumu** — FIR filtrenin bant daralmasına etkisi
+- Constellation — 4 QPSK sembol noktası
+- I / Q Kanalı — filtresiz (kare) vs filtreli (yumuşak) karşılaştırması
+- Modüle Edilmiş Sinyal — filtresiz vs filtreli
+- Frekans Spektrumu — FIR filtrenin bant daralmasına etkisi
 
-## Sonraki Adımlar
+Sonraki Adımlar
 
 - [ ] QPSK demodülatör ekle (round-trip testi)
 - [ ] RRC filtre entegrasyonu (Ece'den gelecek)
