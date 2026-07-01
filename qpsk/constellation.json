@@ -1,0 +1,6 @@
+[
+  {"bits_in": [0, 0], "msb": 0, "lsb": 0, "i_out": 23170, "q_out":  23170, "phase_degrees":  45},
+  {"bits_in": [0, 1], "msb": 0, "lsb": 1, "i_out": 23170, "q_out": -23170, "phase_degrees": 315},
+  {"bits_in": [1, 0], "msb": 1, "lsb": 0, "i_out":-23170, "q_out":  23170, "phase_degrees": 135},
+  {"bits_in": [1, 1], "msb": 1, "lsb": 1, "i_out":-23170, "q_out": -23170, "phase_degrees": 225}
+]
